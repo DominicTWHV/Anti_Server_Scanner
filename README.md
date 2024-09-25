@@ -4,6 +4,10 @@ Ever having issues with random bots/server scanners pinging your server?
 
 **Here is your solution!**
 
+**Important:**
+
+**This script has only been tested on a bare bones deployment, using pterodactyl or docker (or similar) may not work well.**
+
 ------------------------------------------------------
 
 # Deployment:
