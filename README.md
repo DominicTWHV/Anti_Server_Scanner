@@ -25,7 +25,7 @@ git clone https://github.com/DominicTWHV/Anti_Server_Scanner.git
 
 ```bash
 cd Anti_Server_Scanner
-sudo chmod +x main.sh
+sudo chmod +x *.sh
 ```
 
 
