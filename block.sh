@@ -5,42 +5,77 @@ RED='\033[0;31m'    #red
 GREEN='\033[0;32m'  #green
 YELLOW='\033[0;33m' #yellow
 BLUE='\033[0;34m'   #blue
-NC='\033[0m'        #no color
+NC='\033[0m'        #  color
 
-#ask for file path
+#check if sudo
+if [[ "$EUID" -ne 0 ]]; then
+    echo -e "${RED}Please run this script as root or with sudo.${NC}"
+    exit 1
+fi
+
+#input file path
 echo -e "${BLUE}Please enter the file path containing IP addresses:${NC}"
 read -r file_path
 
-#check if file exists
+#validate path
+if [[ -z "$file_path" ]]; then
+    echo -e "${RED}Error: No file path provided.${NC}"
+    exit 1
+fi
+
+#check if exists
 if [[ ! -f "$file_path" ]]; then
     echo -e "${RED}Error: File does not exist.${NC}"
     exit 1
 fi
 
-#check if ipset exists, if not, create it
+#make ipset if doesnt exist
 if ! ipset list blacklist &>/dev/null; then
-    sudo ipset create blacklist hash:ip
+    sudo ipset create blacklist hash:ip || {
+        echo -e "${RED}Failed to create ipset 'blacklist'. Exiting.${NC}"
+        exit 1
+    }
     echo -e "${YELLOW}Created ipset 'blacklist'.${NC}"
 fi
 
-#check if iptables rule exists, if not, create it
+#make iptables rule if doesnt exist
 if ! sudo iptables -C INPUT -m set --match-set blacklist src -j DROP &>/dev/null; then
-    sudo iptables -I INPUT -m set --match-set blacklist src -j DROP
+    sudo iptables -I INPUT -m set --match-set blacklist src -j DROP || {
+        echo -e "${RED}Failed to add iptables rule. Exiting.${NC}"
+        exit 1
+    }
     echo -e "${YELLOW}Added iptables rule to drop packets from 'blacklist'.${NC}"
 fi
 
-#read IP addresses line by line
+#success counters/error counter
+success_count=0
+error_count=0
+
+#read ip line by line
 while IFS= read -r ip; do
-    #check if the line isn't empty
+    #check line isnt empty
     if [[ -n "$ip" ]]; then
-        #add IP to ipset
-        if sudo ipset add blacklist "$ip" 2>/dev/null; then
-            echo -e "${GREEN}Blocked IP: ${ip}${NC}"
+        #validate ip
+        if [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            #check ip is already blocked or not
+            if ! sudo ipset test blacklist "$ip" &>/dev/null; then
+                #add to ipset if not
+                if sudo ipset add blacklist "$ip" 2>/dev/null; then
+                    echo -e "${GREEN}Blocked IP: ${ip}${NC}"
+                    ((success_count++))
+                else
+                    echo -e "${RED}Failed to add IP: ${ip}${NC}"
+                    ((error_count++))
+                fi
+            else
+                echo -e "${YELLOW}IP ${ip} is already in the blacklist.${NC}"
+            fi
         else
-            echo -e "${RED}IP ${ip} already exists in the blacklist or is invalid.${NC}"
+            echo -e "${RED}Invalid IP format: ${ip}${NC}"
+            ((error_count++))
         fi
     fi
 done < "$file_path"
 
-#all lines are done
-echo -e "${YELLOW}All IP addresses have been processed.${NC}"
+#echo final
+echo -e "${YELLOW}Processed ${success_count} IPs successfully. ${error_count} errors occurred.${NC}"
