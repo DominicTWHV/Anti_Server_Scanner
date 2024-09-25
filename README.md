@@ -33,8 +33,10 @@ Use a text editor like nano to view `main.sh`, you should see a couple of config
 You may use
 
 ```bash
-./main.sh
+sudo ./main.sh
 ```
+
+_iptables requires root permissions_
 
 to run it once, or feel free to install this into a crontab job to run periodically.
 
