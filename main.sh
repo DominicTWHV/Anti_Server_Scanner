@@ -9,11 +9,15 @@ IP_LOG_FILE="/path/to/ur/suspicious_ips.txt"
 #set to true if you want automatic actions and append it into iptables, and set to false if you want to create a txt file for them
 BLOCK_IP=false
 
-#define what versions are whitelisted
+#define what versions are whitelisted. It's recommended that you only permit versions that your server is on, ie 1.21
 PERMITTED_VERSIONS=("1.8" "1.20.3")
 
-#set to true to permit 'Unknown' versions, recommended value = false
+#set to true to permit 'Unknown' versions, recommended value = false, as unknown is most often seen with scanners
 PERMIT_UNKNOWN=false
+
+
+#=================DO NOT TOUCH BELOW UNLESS YOU KNOW WHAT YOU ARE DOING=================
+
 
 #define color codes for colorful echo!
 RED='\033[0;31m'    #red
