@@ -1,4 +1,4 @@
-# Anti Server Scanner for Velocity Proxy
+# Overview
 
 Ever having issues with random bots/server scanners pinging your server?
 
