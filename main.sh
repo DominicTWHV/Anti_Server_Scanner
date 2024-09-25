@@ -10,7 +10,7 @@ IP_LOG_FILE="/path/to/ur/suspicious_ips.txt"
 BLOCK_IP=false
 
 #define what versions are whitelisted. It's recommended that you only permit versions that your server is on, ie 1.21
-PERMITTED_VERSIONS=("1.8" "1.20.3")
+PERMITTED_VERSIONS=("1.21" "1.19") #as example
 
 #set to true to permit 'Unknown' versions, recommended value = false, as unknown is most often seen with scanners
 PERMIT_UNKNOWN=false
