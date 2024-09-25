@@ -24,6 +24,7 @@ cd Anti_Server_Scanner
 sudo chmod +x main.sh
 ```
 
+
 **Setting Up:**
 
 Use a text editor like nano to view `main.sh`, you should see a couple of config options inside, configure those to your needs.
@@ -31,6 +32,7 @@ Use a text editor like nano to view `main.sh`, you should see a couple of config
 ```bash
 nano main.sh
 ```
+
 
 **Running:**
 
@@ -43,6 +45,7 @@ sudo ./main.sh
 _iptables requires root permissions_
 
 to run it once, or feel free to install this into a crontab job to run periodically.
+
 
 # Notes:
 
