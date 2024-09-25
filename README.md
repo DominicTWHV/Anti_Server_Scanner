@@ -6,9 +6,9 @@ Here is your solution!
 
 **Important:**
 
-**This script has only been tested on a bare bones deployment, using pterodactyl or docker (or similar) may not work well.**
-
 If you use docker, swap out all `INPUT` statements for `DOCKER-USER` instead.
+
+Pterodactyl support NOT included.
 
 ------------------------------------------------------
 
