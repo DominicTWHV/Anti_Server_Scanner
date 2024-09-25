@@ -26,6 +26,7 @@ git clone https://github.com/DominicTWHV/Anti_Server_Scanner.git
 **Preparing Script:**
 
 ```bash
+sudo apt install ipset -y
 cd Anti_Server_Scanner
 sudo chmod +x *.sh
 ```
