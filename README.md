@@ -2,7 +2,7 @@
 
 Ever having issues with random bots/server scanners pinging your server?
 
-**Here is your solution!**
+Here is your solution!
 
 **Important:**
 
