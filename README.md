@@ -46,6 +46,10 @@ _iptables requires root permissions_
 
 to run it once, or feel free to install this into a crontab job to run periodically.
 
+# Manual Blocking:
+
+If you have set the function to block with iptables to false (create txt file instead), you may run `sudo ./block.sh` manually, enter the path of the file that `main.sh` created, and block those manually.
+
 
 # Notes:
 
