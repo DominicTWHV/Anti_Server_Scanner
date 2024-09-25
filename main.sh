@@ -1,78 +1,106 @@
 #!/bin/bash
 
-#path to your velocity latest.log file
-LOG_FILE="/path/to/your/logs/latest.log"
+#path to your latest.log for velocity
+LOG_FILE="/home/ubuntu/logs/latest.log"
 
-#path to your desired txt output file, only used when BLOCK_IP is set to false
-IP_LOG_FILE="/path/to/suspicious_ips.txt"
+#path for the file to generate when BLOCK_IP is set to false
+IP_LOG_FILE="/home/ubuntu/suspicious_ips.txt"
 
 #set to true if you want automatic actions and append it into iptables, and set to false if you want to create a txt file for them
 BLOCK_IP=false
 
-#which versions are accepted (will not create an entry in iptables/log file if defined here or in range)
-MIN_VERSION="1.19.1"  #minimum version permitted before creating an entry
-MAX_VERSION="1.21"    #maximum version permitted before creating an entry
+#define what versions are whitelisted
+PERMITTED_VERSIONS=("1.8" "1.20.3")
 
-#when either option is null, the other option's version will be used (no range, so only a single version will be permitted)
-
-#whether to permit "Unknown" versions, recommended to set this to false
+#set to true to permit 'Unknown' versions, recommended value = false
 PERMIT_UNKNOWN=false
 
-#compare versions
-version_lt() { 
-    [ "$1" != "null" ] && [ "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1" ]; 
-}
+#define color codes for colorful echo!
+RED='\033[0;31m'    #red
+GREEN='\033[0;32m'  #green
+YELLOW='\033[0;33m' #yellow
+BLUE='\033[0;34m'   #blue
+NC='\033[0m'        #no color
 
-version_gt() { 
-    [ "$1" != "null" ] && [ "$(printf '%s\n' "$@" | sort -V | tail -n 1)" != "$1" ]; 
-}
-
-#read log file to check
-grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
-  #extract ip
-  ip=$(echo "$line" | grep -oP '(?<=/\[)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?=:)' )
-  version=$(echo "$line" | grep -oP '(?<=version )[0-9\.]+|Unknown')
-
-  #determine if permitted
-  allow_ip=false
-
-  if [ "$version" == "Unknown" ]; then
-    if [ "$PERMIT_UNKNOWN" = true ]; then
-      allow_ip=true
-    fi
-  else
-    if [ "$MIN_VERSION" == "null" ] && [ "$MAX_VERSION" == "null" ]; then
-      #specific version? need exact match
-      if [ "$version" == "$MAX_VERSION" ]; then
-        allow_ip=true
-      fi
-    else
-      #check if within range
-      if ! version_lt "$version" "$MIN_VERSION" && ! version_gt "$version" "$MAX_VERSION"; then
-        allow_ip=true
-      fi
-    fi
-  fi
-
-  #not allowed, process ip
-  if [ "$allow_ip" = false ]; then
-    #check iptables entry or in log file
-    if ! iptables -L INPUT -v -n | grep -q "$ip"; then
-      if [ "$BLOCK_IP" = true ]; then
-        # Block the IP using iptables
-        echo "Blocking IP: $ip with version $version"
-        iptables -A INPUT -s "$ip" -j DROP
-      else
-        #append to logs if not present
-        if ! grep -q "$ip" "$IP_LOG_FILE"; then
-          echo "Logging IP: $ip to $IP_LOG_FILE"
-          echo "$ip" >> "$IP_LOG_FILE"
-        else
-          echo "IP $ip is already logged."
+#check if version is permitted
+version_permitted() {
+    local version="$1"
+    echo -e "${BLUE}Checking if version '${GREEN}$version${BLUE}' is permitted...${NC}"
+    for permitted_version in "${PERMITTED_VERSIONS[@]}"; do
+        echo -e "${YELLOW}Comparing with permitted version: '${GREEN}$permitted_version${NC}'"
+        if [[ "$version" == "$permitted_version" ]]; then
+            echo -e "${GREEN}Version '${version}' is permitted.${NC}"
+            return 0  #0 if permitted
         fi
-      fi
+    done
+    echo -e "${RED}Version '${version}' is not permitted.${NC}"
+    return 1  #1 if not permitted
+}
+
+#read log file and extract lines
+grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
+    #extract ip
+    ip=$(echo "$line" | grep -oP '(?<=/)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?=:)')
+    
+    #extract version
+    version=$(echo "$line" | sed -n 's/.*pinging the server with version //p')
+
+    #debugging outputs, disabled for the sake of your eyes
+    
+    #echo -e "${YELLOW}Extracted Line: '${GREEN}$line${NC}'"
+    #echo -e "${YELLOW}Extracted IP: '${GREEN}$ip${NC}'"
+    #echo -e "${YELLOW}Extracted Version: '${GREEN}$version${NC}'"
+
+    #determine if permitted
+    allow_ip=true  #assume allowed initially
+
+    if [ -z "$version" ]; then
+        echo -e "${RED}No version found for IP ${GREEN}$ip.${NC}"
+        allow_ip=false  #not allow if version does not match
+    elif [ "$version" == "Unknown" ]; then
+        echo -e "${YELLOW}Detected 'Unknown' version for IP ${GREEN}$ip${NC}."
+        if [ "$PERMIT_UNKNOWN" = false ]; then
+            allow_ip=false  #not allow if unknown versions are not allowed
+            echo -e "${RED}IP ${GREEN}$ip ${RED}has an Unknown version and is not permitted.${NC}"
+        else
+            echo -e "${GREEN}IP ${GREEN}$ip ${GREEN}is allowed because Unknown versions are permitted.${NC}"
+        fi
     else
-      echo "IP $ip is already blocked."
+        #check if version in list
+        version_permitted "$version"
+        if ! version_permitted "$version"; then
+            allow_ip=false  #disallow if not permitted
+            echo -e "${RED}IP ${GREEN}$ip ${RED}with version ${GREEN}$version ${RED}is not in the permitted version list.${NC}"
+        else
+            echo -e "${GREEN}IP ${GREEN}$ip ${GREEN}with version ${GREEN}$version ${GREEN} is permitted.${NC}"
+        fi
     fi
-  fi
+
+    #if not allowed, process below
+    if [ "$allow_ip" = false ]; then
+        echo -e "${YELLOW}Processing blocked IP: ${GREEN}$ip${NC}"
+        #check if already flagged in logs or iptables
+        if ! iptables -L INPUT -v -n | grep -q "$ip"; then
+            if [ "$BLOCK_IP" = true ]; then
+                #if use iptables, block it (drop)
+                echo -e "${RED}Blocking IP: ${GREEN}$ip ${RED}with version ${GREEN}$version${NC}"
+                iptables -A INPUT -s "$ip" -j DROP
+            else
+                #append to list if iptables arent used
+                if ! grep -q "$ip" "$IP_LOG_FILE"; then
+                    echo -e "${BLUE}Logging IP: ${GREEN}$ip ${BLUE}to $IP_LOG_FILE${NC}"
+                    echo "$ip" >> "$IP_LOG_FILE"
+                else
+                    echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already logged.${NC}"
+                fi
+            fi
+        else
+            echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already blocked.${NC}"
+        fi
+    else
+        echo -e "${GREEN}IP: ${GREEN}$ip ${BLUE}Traffic Permitted.${NC}"
+    fi
+    echo
+    echo -e "${GREEN}==============================================================${NC}"
+    echo
 done
