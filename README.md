@@ -28,6 +28,10 @@ sudo chmod +x main.sh
 
 Use a text editor like nano to view `main.sh`, you should see a couple of config options inside, configure those to your needs.
 
+```bash
+nano main.sh
+```
+
 **Running:**
 
 You may use
