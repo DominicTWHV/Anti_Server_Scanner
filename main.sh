@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #path to your latest.log for velocity
-LOG_FILE="/home/ubuntu/logs/latest.log"
+LOG_FILE="/path/to/ur/logs/latest.log"
 
 #path for the file to generate when BLOCK_IP is set to false
-IP_LOG_FILE="/home/ubuntu/suspicious_ips.txt"
+IP_LOG_FILE="/path/to/ur/suspicious_ips.txt"
 
 #set to true if you want automatic actions and append it into iptables, and set to false if you want to create a txt file for them
 BLOCK_IP=false
