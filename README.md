@@ -40,6 +40,11 @@ Use a text editor like nano to view `main.sh`, you should see a couple of config
 nano main.sh
 ```
 
+or 
+
+```bash
+vim main.sh
+```
 
 **Running:**
 
