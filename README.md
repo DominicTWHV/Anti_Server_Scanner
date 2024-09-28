@@ -31,6 +31,33 @@ cd Anti_Server_Scanner
 sudo chmod +x *.sh
 ```
 
+Setting up a script to persist ipset rules:
+
+```bash
+sudo nano /etc/network/if-pre-up.d/ipset-restore
+```
+
+Paste in the following:
+
+```bash
+#!/bin/bash
+if [ -e /etc/ipset.rules ]; then
+    /sbin/ipset restore < /etc/ipset.rules
+fi
+```
+
+Save and exit, then run:
+
+```bash
+sudo chmod +x /etc/network/if-pre-up.d/ipset-restore
+sudo ipset save | sudo tee /etc/ipset.rules > /dev/null
+```
+
+You may see your ipset entries with:
+
+```bash
+sudo ipset list blacklist
+```
 
 **Setting Up:**
 
