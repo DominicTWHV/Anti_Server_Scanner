@@ -85,11 +85,22 @@ _iptables requires root permissions_
 
 to run it once, or feel free to install this into a crontab job to run periodically.
 
+
+------------------------------------------------------
+
+
 # Manual Blocking:
 
 If you have set the function to block with iptables to false (create txt file instead), you may run `sudo ./block.sh` manually, enter the path of the file that `main.sh` created, and block those manually.
 
+
+------------------------------------------------------
+
+
 # Crontab Job Example:
+
+
+Note: you MUST use the sudo crontab, not user specific crontab for the following.
 
 ```bash
 0 */3 * * * /home/ubuntu/Anti_Server_Scanner/main.sh
@@ -98,6 +109,9 @@ If you have set the function to block with iptables to false (create txt file in
 Use the above if you want to check the logs and block every once per 3 hours.
 
 **The 2nd entry is needed for your ipset rules to persist after reboot.**
+
+------------------------------------------------------
+
 
 # Notes:
 
