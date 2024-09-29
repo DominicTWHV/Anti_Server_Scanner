@@ -141,8 +141,10 @@ grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
     else
         echo -e "${GREEN}IP: ${GREEN}$ip ${BLUE}Traffic Permitted.${NC}"
     fi
-    sudo ipset save > /etc/ipset.rules
     echo
     echo -e "${GREEN}==============================================================${NC}"
     echo
 done
+
+#make sure rules will persist even after reboot
+sudo ipset save > /etc/ipset.rules
