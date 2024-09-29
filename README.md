@@ -33,26 +33,33 @@ cd Anti_Server_Scanner
 sudo chmod +x *.sh
 ```
 
-Setting up a script to persist ipset rules:
+Setting up a file to persist ipset rules:
 
 ```bash
-sudo nano /etc/network/if-pre-up.d/ipset-restore
+sudo nano /etc/systemd/system/ipset-restore.service
 ```
 
 Paste in the following:
 
 ```bash
-#!/bin/bash
-if [ -e /etc/ipset.rules ]; then
-    /sbin/ipset restore < /etc/ipset.rules
-fi
+[Unit]
+Description=Restore ipset rules
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/sbin/ipset restore < /etc/ipset.rules
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 Save and exit, then run:
 
 ```bash
-sudo chmod +x /etc/network/if-pre-up.d/ipset-restore
-sudo ipset save | sudo tee /etc/ipset.rules > /dev/null
+sudo systemctl enable ipset-restore.service
+sudo systemctl start ipset-restore.service
 ```
 
 You may see your ipset entries with:
@@ -106,11 +113,8 @@ Note: you MUST use the sudo crontab, not user specific crontab for the following
 
 ```bash
 0 */3 * * * /home/ubuntu/Anti_Server_Scanner/main.sh
-@reboot /sbin/ipset restore < /etc/ipset.rules
 ```
 Use the above if you want to check the logs and block every once per 3 hours.
-
-**The 2nd entry is needed for your ipset rules to persist after reboot.**
 
 ------------------------------------------------------
 
