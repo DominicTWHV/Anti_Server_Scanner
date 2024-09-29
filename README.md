@@ -43,12 +43,12 @@ Paste in the following:
 
 ```bash
 [Unit]
-Description=Restore ipset rules
+Description=restore ipset rules
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/sbin/ipset restore < /etc/ipset.rules
+ExecStart=/bin/bash -c '/sbin/ipset destroy && /sbin/ipset restore < /etc/ipset.rules'
 Type=oneshot
 
 [Install]
@@ -58,8 +58,11 @@ WantedBy=multi-user.target
 Save and exit, then run:
 
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl enable ipset-restore.service
 sudo systemctl start ipset-restore.service
+
+sudo systemctl status ipset-restore.service
 ```
 
 You may see your ipset entries with:
