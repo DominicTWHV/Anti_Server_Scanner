@@ -15,6 +15,9 @@ PERMITTED_VERSIONS=("1.21" "1.19") # as example
 #set to true to permit 'Unknown' versions, recommended value = false, as unknown is most often seen with scanners
 PERMIT_UNKNOWN=false
 
+#set to true to permit 'Legacy' versions, recommended value = false, as unknown is most often seen with scanners
+PERMIT_LEGACY=false
+
 #=================DO NOT TOUCH BELOW UNLESS YOU KNOW WHAT YOU ARE DOING=================
 
 #define color codes for colorful echo!
@@ -96,6 +99,14 @@ grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
         else
             echo -e "${GREEN}IP ${GREEN}$ip ${GREEN}is allowed because Unknown versions are permitted.${NC}"
         fi
+    elif [ "$version" == "Legacy" ]; then
+        echo -e "${YELLOW}Detected 'Legacy' version for IP ${GREEN}$ip${NC}."
+        if [ "$PERMIT_LEGACY" = false ]; then
+            allow_ip=false  #not allow if legacy versions are not allowed
+            echo -e "${RED}IP ${GREEN}$ip ${RED}has a Legacy version and is not permitted.${NC}"
+        else
+            echo -e "${GREEN}IP ${GREEN}$ip ${GREEN}is allowed because Legacy versions are permitted.${NC}"
+        fi    
     else
         #check if version is in the list
         if version_permitted "$version"; then
