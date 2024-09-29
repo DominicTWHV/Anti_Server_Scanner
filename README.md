@@ -12,6 +12,9 @@ If you use docker, swap out all `INPUT` statements for `DOCKER-USER` instead.
 
 Pterodactyl support NOT included.
 
+
+**Follow this README guide closely to ensure things work!**
+
 ------------------------------------------------------
 
 # Deployment:
@@ -121,6 +124,7 @@ Use the above if you want to check the logs and block every once per 3 hours.
 
 ------------------------------------------------------
 
+Feel free to reboot and test if entries persist after a reboot. They should if you have configured everything correctly.
 
 # Notes:
 
