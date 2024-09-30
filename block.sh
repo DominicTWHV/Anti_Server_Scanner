@@ -77,5 +77,8 @@ while IFS= read -r ip; do
     fi
 done < "$file_path"
 
+#make sure rules will persist even after reboot
+sudo ipset save > /etc/ipset.rules
+
 #echo final
 echo -e "${YELLOW}Processed ${success_count} IPs successfully. ${error_count} errors occurred.${NC}"
