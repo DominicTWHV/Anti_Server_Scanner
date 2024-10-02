@@ -148,3 +148,10 @@ done
 
 #make sure rules will persist even after reboot
 sudo ipset save > /etc/ipset.rules
+
+# Check if the iptables rule already exists, add it if it doesn't
+if ! iptables -C INPUT -m set --match-set "blacklist" src -j DROP &>/dev/null; then
+     sudo iptables -I INPUT -m set --match-set $IPSET_NAME src -j DROP
+    sudo iptables-save > /etc/iptables/rules.v4
+fi
+
