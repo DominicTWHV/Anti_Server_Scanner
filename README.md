@@ -73,7 +73,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/sbin/iptables-restore < /etc/iptables/rules.v4
+ExecStart=/bin/bash -c '/sbin/iptables-restore < /etc/iptables/rules.v4'
 Type=oneshot
 
 [Install]
