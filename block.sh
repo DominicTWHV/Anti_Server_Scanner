@@ -79,11 +79,12 @@ done < "$file_path"
 
 #make sure rules will persist even after reboot
 sudo ipset save > /etc/ipset.rules
+sudo iptables-save > /etc/iptables/rules.v4
 
 # Check if the iptables rule already exists, add it if it doesn't
-if ! iptables -C INPUT -m set --match-set "blacklist" src -j DROP &>/dev/null; then
+if ! sudo iptables-save | grep -q "match-set blacklist src"; then
     sudo iptables -I INPUT -m set --match-set "blacklist" src -j DROP
-    sudo iptables-save > /etc/iptables/rules.v4
+    echo -e "${GREEN}Creating iptables rule because it doesn't exist.${NC}"
 fi
 
 #echo final
