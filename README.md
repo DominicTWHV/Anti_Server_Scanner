@@ -69,8 +69,8 @@ Paste in the following:
 ```bash
 [Unit]
 Description=Restore iptables rules
-After=network-online.target
-Wants=network-online.target
+After=ipset-restore.service
+Wants=ipset-restore.service
 
 [Service]
 ExecStart=/bin/bash -c '/sbin/iptables-restore < /etc/iptables/rules.v4'
