@@ -19,7 +19,7 @@ Pterodactyl support NOT included.
 
 # Deployment:
 
-This script has been tested on Ubuntu Server 22.04 LTS, with velocity proxy version 3.3.0-SNAPSHOT (git-52ae735e-b425)
+This script has been tested on Ubuntu Server 22.04 LTS, with velocity proxy version 3.3.0-SNAPSHOT (git-2016d148-b436) 
 
 
 **Cloning:**
