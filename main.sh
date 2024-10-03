@@ -149,3 +149,7 @@ done
 #make sure rules will persist even after reboot
 sudo ipset save > /etc/ipset.rules
 sudo iptables-save > /etc/iptables/rules.v4
+
+#reload rulesets
+sudo systemctl start ipset-restore.service
+sudo systemctl start iptables-restore.service
