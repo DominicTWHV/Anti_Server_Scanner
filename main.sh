@@ -66,10 +66,10 @@ if ! ipset list blacklist &>/dev/null; then
     echo -e "${YELLOW}Created ipset 'blacklist'.${NC}"
 fi
 
-#check if iptables rule exists to use ipset, if not, create it
-if ! sudo iptables -C INPUT -m set --match-set blacklist src -j DROP &>/dev/null; then
-    sudo iptables -I INPUT -m set --match-set blacklist src -j DROP
-    echo -e "${YELLOW}Added iptables rule to drop packets from 'blacklist'.${NC}"
+#check if the iptables rule already exists, add it if it doesn't
+if ! sudo iptables-save | grep -q "match-set blacklist src"; then
+    sudo iptables -I INPUT -m set --match-set "blacklist" src -j DROP
+    echo -e "${GREEN}Creating iptables rule because it doesn't exist.${NC}"
 fi
 
 #read log file and extract lines
@@ -149,10 +149,3 @@ done
 #make sure rules will persist even after reboot
 sudo ipset save > /etc/ipset.rules
 sudo iptables-save > /etc/iptables/rules.v4
-
-# Check if the iptables rule already exists, add it if it doesn't
-if ! sudo iptables-save | grep -q "match-set blacklist src"; then
-    sudo iptables -I INPUT -m set --match-set "blacklist" src -j DROP
-    echo -e "${GREEN}Creating iptables rule because it doesn't exist.${NC}"
-fi
-
