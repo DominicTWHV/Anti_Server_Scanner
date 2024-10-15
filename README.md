@@ -2,7 +2,7 @@
 
 Ever having issues with random bots/server scanners pinging your server?
 
-Here is your solution! This script is a passive server scanner blocker (i.e. the longer you use it, the more IPs you will be blocking)
+Here is your solution! This script is a passive server scanner blocker (i.e. the longer you use it, the more IPs you will be blocking). It does not connect and poll an external source, so it's fully private!
 
 How does it work? It reads your velocity logs when ran, and catches IPs pinging your server with different versions. If the version is not whitelisted (see below), then it will be added into an ipset blocklist to refuse traffic from that IP.
 
