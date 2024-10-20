@@ -9,6 +9,9 @@ IP_LOG_FILE="/path/to/ur/suspicious_ips.txt"
 #set to true if you want automatic actions and append it into ipset, and set to false if you want to create a txt file for them
 BLOCK_IP=false
 
+#set this to your public IP to prevent locking you out.
+YOUR_IP=
+
 #define what versions are whitelisted. It's recommended that you only permit versions that your server is on, i.e., 1.21
 PERMITTED_VERSIONS=("1.21" "1.19") # as example
 
@@ -124,10 +127,14 @@ grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
         #block or log the ip (see above)
         if [ "$BLOCK_IP" = true ]; then
             #if using ipset, block it (add to ipset)
-            if sudo ipset add blacklist "$ip" 2>/dev/null; then
-                echo -e "${RED}Blocking IP: ${GREEN}$ip ${RED}with version ${GREEN}$version${NC}"
+            if [ "$YOUR_IP" = "$ip" ]; then
+                echo -e "${RED}Anti-lockout: ${GREEN}$ip ${RED} will not be touched to prevent lockout.${NC}"
             else
-                echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already blocked.${NC}"
+                if sudo ipset add blacklist "$ip" 2>/dev/null; then
+                    echo -e "${RED}Blocking IP: ${GREEN}$ip ${RED}with version ${GREEN}$version${NC}"
+                else
+                    echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already blocked.${NC}"
+                fi
             fi
         else
             #append to list if ipset isn't used
