@@ -15,7 +15,7 @@ Pterodactyl support NOT included.
 
 **Follow this README guide closely to ensure things work!**
 
-**Make sure to whitelist your own IP to prevent lockout! If your script does not include such option, UPDATE IT IMMEDIATELY!"
+**Make sure to whitelist your own IP to prevent lockout! If your script does not include such option, UPDATE IT IMMEDIATELY!"**
 
 ------------------------------------------------------
 
