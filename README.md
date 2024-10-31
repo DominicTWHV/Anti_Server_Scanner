@@ -156,3 +156,5 @@ Feel free to reboot and test if entries persist after a reboot. They should if y
 # Notes:
 
 Please be aware that this script has only been tested with velocity. If you do not use a proxy, logs such as `[17:29:08] [Netty epoll Worker #1/INFO] [com.velocitypowered.proxy.connection.client.StatusSessionHandler]: [initial connection] /[REDACTED]:57224 is pinging the server with version Unknown` will not show up, rendering everything useless.
+
+If you use this for a public server, it's recommended to whitelist all versions except for 1.8/1.9 (unless needed) to prevent false positives and blacklisting your players. Keeping checks for "Unknown" and "Legacy" versions is still recommended, as regular players should not be identified under such categories.
