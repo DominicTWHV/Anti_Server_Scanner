@@ -77,15 +77,16 @@ while IFS= read -r ip; do
     fi
 done < "$file_path"
 
-#make sure rules will persist even after reboot
-sudo ipset save > /etc/ipset.rules
-sudo iptables-save > /etc/iptables/rules.v4
-
 # Check if the iptables rule already exists, add it if it doesn't
 if ! sudo iptables-save | grep -q "match-set blacklist src"; then
     sudo iptables -I INPUT -m set --match-set "blacklist" src -j DROP
     echo -e "${GREEN}Creating iptables rule because it doesn't exist.${NC}"
 fi
+
+#make sure rules will persist even after reboot
+sudo ipset save > /etc/ipset.rules
+sudo netfilter-persistent save
+sudo netfilter-persistent reload
 
 #echo final
 echo -e "${YELLOW}Processed ${success_count} IPs successfully. ${error_count} errors occurred.${NC}"
