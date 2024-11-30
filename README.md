@@ -60,38 +60,13 @@ Type=oneshot
 WantedBy=multi-user.target
 ```
 
-And a script to restore iptables:
-
-```bash
-sudo nano /etc/systemd/system/iptables-restore.service
-```
-
-Paste in the following:
-
-```bash
-[Unit]
-Description=Restore iptables rules
-After=ipset-restore.service
-Wants=ipset-restore.service
-
-[Service]
-ExecStart=/bin/bash -c '/sbin/iptables-restore < /etc/iptables/rules.v4'
-Type=oneshot
-
-[Install]
-WantedBy=multi-user.target
-```
-
 Save and exit, then run:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable ipset-restore.service
-sudo systemctl enable iptables-restore.service
 sudo systemctl start ipset-restore.service
-sudo systemctl start iptables-restore.service
 
-sudo systemctl status iptables-restore.service
 sudo systemctl status ipset-restore.service
 ```
 
