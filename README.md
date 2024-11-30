@@ -53,7 +53,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/bin/bash -c '/sbin/ipset destroy && /sbin/ipset restore < /etc/ipset.rules'
+ExecStart=/bin/bash -c '/sbin/ipset restore < /etc/ipset.rules'
 Type=oneshot
 
 [Install]
