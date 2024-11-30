@@ -47,6 +47,7 @@ if [[ ! -w "$IP_LOG_FILE" && ! -e "$IP_LOG_FILE" ]]; then
     if [[ "$BLOCK_IP" != "true" ]]; then
         echo -e "${RED}Cannot write to ${IP_LOG_FILE}. Please check file permissions.${NC}"
         exit 1
+    fi
 fi
 
 #check if version is permitted
