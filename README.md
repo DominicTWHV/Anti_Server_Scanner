@@ -65,9 +65,12 @@ Save and exit, then run:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable ipset-restore.service
+sudo systemctl enable netfilter-persistent
 sudo systemctl start ipset-restore.service
+sudo systemctl start netfilter-persistent
 
 sudo systemctl status ipset-restore.service
+sudo systemctl status netfilter-persistent
 ```
 
 You may see your ipset entries with:
