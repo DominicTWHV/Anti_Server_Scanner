@@ -44,8 +44,9 @@ fi
 
 #check if IP log file is writable or can be created
 if [[ ! -w "$IP_LOG_FILE" && ! -e "$IP_LOG_FILE" ]]; then
-    echo -e "${RED}Cannot write to ${IP_LOG_FILE}. Please check file permissions.${NC}"
-    exit 1
+    if [[ "$BLOCK_IP" != "true" ]]; then
+        echo -e "${RED}Cannot write to ${IP_LOG_FILE}. Please check file permissions.${NC}"
+        exit 1
 fi
 
 #check if version is permitted
