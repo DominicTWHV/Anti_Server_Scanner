@@ -14,7 +14,7 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 #input file path
-echo -e "${BLUE}Please enter the file path containing IP addresses:${NC}"
+echo -e "${BLUE}Please enter the file path containing IP addresses, if you are using my other repo (MCIPBlocklist), enter 'set.txt' here.${NC}"
 read -r file_path
 
 #validate path
