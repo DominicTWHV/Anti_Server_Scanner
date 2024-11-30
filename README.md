@@ -33,7 +33,7 @@ git clone https://github.com/DominicTWHV/Anti_Server_Scanner.git
 **Preparing Script:**
 
 ```bash
-sudo apt install ipset -y
+sudo apt install ipset iptables iptables-persistent -y
 cd Anti_Server_Scanner
 sudo chmod +x *.sh
 ```
