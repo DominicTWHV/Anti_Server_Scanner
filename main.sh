@@ -9,10 +9,11 @@ IP_LOG_FILE="/path/to/ur/suspicious_ips.txt"
 #set to true if you want automatic actions and append it into ipset, and set to false if you want to create a txt file for them
 BLOCK_IP=false
 
-#set this to your public IP to prevent locking you out.
-YOUR_IP=
+#set this to your public IPs to prevent locking you out. you can use a list like ("1.1.1.1" "8.8.8.8"). applicable use: your ip, mcservstat.us
+#ive found that using a vpn server can sometimes cause the Unknown/Legacy version to show up, so if you have people connected to one of YOUR vpn servers (like wireguard), you can allow that here
+WHITELISTED_IPS=("your_ip_here")
 
-#define what versions are whitelisted. It's recommended that you only permit versions that your server is on, i.e., 1.21
+#define what versions are whitelisted. It's recommended that you only permit versions that your server is on, i.e. 1.21
 PERMITTED_VERSIONS=("1.21" "1.19") # as example
 
 #set to true to permit 'Unknown' versions, recommended value = false, as unknown is most often seen with scanners
@@ -20,6 +21,9 @@ PERMIT_UNKNOWN=false
 
 #set to true to permit 'Legacy' versions, recommended value = false, as unknown is most often seen with scanners
 PERMIT_LEGACY=false
+
+#if you wish to change the grep statement to be compatible with other proxies, you can do so by changing line #96 and optionally #98
+#for docker support, swap the "INPUT" statement for "DOCKER-USER" at line #91 (NOT TESTED)
 
 #=================DO NOT TOUCH BELOW UNLESS YOU KNOW WHAT YOU ARE DOING=================
 
@@ -65,6 +69,17 @@ version_permitted() {
     return 1  #1 if not permitted
 }
 
+#check if ip is whitelisted
+is_whitelisted() {
+    local ip="$1"
+    for whitelisted_ip in "${WHITELISTED_IPS[@]}"; do
+        if [[ "$ip" == "$whitelisted_ip" ]]; then
+            return 0  #0 if whitelisted
+        fi
+    done
+    return 1  #1 if not whitelisted
+}
+
 #create ipset if it doesn't exist
 if ! ipset list blacklist &>/dev/null; then
     sudo ipset create blacklist hash:ip
@@ -89,6 +104,12 @@ grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
 
     #extract version
     version=$(echo "$line" | sed -n 's/.*pinging the server with version //p')
+
+    #check if IP is whitelisted
+    if is_whitelisted "$ip"; then
+        echo -e "${GREEN}IP ${GREEN}$ip ${GREEN}is whitelisted and will not be processed.${NC}"
+        continue
+    fi
 
     #determine if permitted
     allow_ip=true  #assume allowed initially
@@ -126,20 +147,16 @@ grep "is pinging the server with version" "$LOG_FILE" | while read -r line; do
     #if not allowed, process below
     if [ "$allow_ip" = false ]; then
         echo -e "${YELLOW}Processing blocked IP: ${GREEN}$ip${NC}"
-        #block or log the ip (see above)
+        #block or log the ip if whitelist (see above)
         if [ "$BLOCK_IP" = true ]; then
             #if using ipset, block it (add to ipset)
-            if [ "$YOUR_IP" = "$ip" ]; then
-                echo -e "${RED}Anti-lockout: ${GREEN}$ip ${RED} will not be touched to prevent lockout.${NC}"
+            if sudo ipset add blacklist "$ip" 2>/dev/null; then
+                echo -e "${RED}Blocking IP: ${GREEN}$ip ${RED}with version ${GREEN}$version${NC}"
             else
-                if sudo ipset add blacklist "$ip" 2>/dev/null; then
-                    echo -e "${RED}Blocking IP: ${GREEN}$ip ${RED}with version ${GREEN}$version${NC}"
-                else
-                    echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already blocked.${NC}"
-                fi
+                echo -e "${YELLOW}IP ${GREEN}$ip ${YELLOW}is already blocked.${NC}"
             fi
         else
-            #append to list if ipset isn't used
+            #append to list if ipset isn't used and ip is not whitelisted
             if ! grep -q "$ip" "$IP_LOG_FILE"; then
                 echo -e "${BLUE}Logging IP: ${GREEN}$ip ${BLUE}to $IP_LOG_FILE${NC}"
                 echo "$ip" >> "$IP_LOG_FILE"
